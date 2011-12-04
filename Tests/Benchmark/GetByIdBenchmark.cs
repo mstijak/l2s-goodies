@@ -35,20 +35,6 @@ namespace L2SGoodies.Tests.Benchmark
 		}
 
 		[Test]
-		public void CustomCompiledGetterExistingEntity()
-		{
-			for (var i = 0; i < N; i++)
-			{
-				using (var db = new TestDataContext())
-				{
-					var p = compiledPersonGetter(db, 1).AsEnumerable().FirstOrDefault();
-					Assert.IsNotNull(p);
-					//Assert.AreEqual(1, p.Length);
-				}
-			}
-		}
-
-		[Test]
 		public void FirstOrDefaultNonExistingEntity()
 		{
 			for (var i = 0; i < N; i++)
@@ -83,6 +69,34 @@ namespace L2SGoodies.Tests.Benchmark
 				{
 					var p = db.FindPersonById(0);
 					Assert.IsNull(p);
+				}
+			}
+		}
+
+		[Test]
+		public void CustomCompiledGetterNonExistingEntity()
+		{
+			for (var i = 0; i < N; i++)
+			{
+				using (var db = new TestDataContext())
+				{
+					var p = compiledPersonGetter(db, 0).AsEnumerable().FirstOrDefault();
+					Assert.IsNull(p);
+					//Assert.AreEqual(1, p.Length);
+				}
+			}
+		}
+
+		[Test]
+		public void CustomCompiledGetterExistingEntity()
+		{
+			for (var i = 0; i < N; i++)
+			{
+				using (var db = new TestDataContext())
+				{
+					var p = compiledPersonGetter(db, 1).AsEnumerable().FirstOrDefault();
+					Assert.IsNotNull(p);
+					//Assert.AreEqual(1, p.Length);
 				}
 			}
 		}

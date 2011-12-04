@@ -15,19 +15,16 @@ namespace L2SGoodies.Data
 {
 	public partial class TestDataContext 
 	{
-		static readonly Func<TestDataContext, System.Int32, Person> compiledPersonFirstOrDefault = CompiledQuery.Compile((TestDataContext dc, System.Int32 _PersonId) => dc.Persons.FirstOrDefault(a=>a.PersonId == _PersonId));
+		static readonly Func<TestDataContext, System.Int32, IQueryable<Person>> compiledPersonPKFilter = CompiledQuery.Compile((TestDataContext dc, System.Int32 _PersonId) => dc.Persons.Where(a=>a.PersonId == _PersonId));
 		
 		public Person FindPersonById(System.Int32 PersonId) 
 		{
-			return compiledPersonFirstOrDefault(this, PersonId);
+			return compiledPersonPKFilter(this, PersonId).AsEnumerable().FirstOrDefault();
 		}
 
 		public Person GetPersonById(System.Int32 PersonId) 
 		{
-			var result = compiledPersonFirstOrDefault(this, PersonId);
-			if (result!=null)
-				return result;
-			throw new InvalidOperationException("Entity not found in the database.");
+			return compiledPersonPKFilter(this, PersonId).AsEnumerable().First();			
 		}
 
 	}

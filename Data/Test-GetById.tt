@@ -48,21 +48,18 @@ namespace <#=data.ContextNamespace#>
  {
 	foreach (TableClass class1 in table.Classes)
 		if (class1.HasPrimaryKey) {
-	        var getter = "compiled" + class1.Name + "FirstOrDefault";
+	        var getter = "compiled" + class1.Name + "PKFilter";
 	       #>
-		static readonly Func<<#=data.ContextName#>, <#= String.Join(", ", class1.Columns.Where(a=>a.IsPrimaryKey).Select(a=>a.Type)) #>, <#= class1.Name #>> <#=getter#> = CompiledQuery.Compile((<#=data.ContextName#> dc, <#= String.Join(", ", class1.Columns.Where(a => a.IsPrimaryKey).Select(a => a.Type + " _" + a.Name)) #>) => dc.<#=  table.Member #>.FirstOrDefault(a=><#= String.Join(" && ", class1.Columns.Where(a=>a.IsPrimaryKey).Select(a=>String.Format("a.{0} == _{0}", a.Name))) #>));
+		static readonly Func<<#=data.ContextName#>, <#= String.Join(", ", class1.Columns.Where(a=>a.IsPrimaryKey).Select(a=>a.Type)) #>, IQueryable<<#= class1.Name #>>> <#=getter#> = CompiledQuery.Compile((<#=data.ContextName#> dc, <#= String.Join(", ", class1.Columns.Where(a => a.IsPrimaryKey).Select(a => a.Type + " _" + a.Name)) #>) => dc.<#=  table.Member #>.Where(a=><#= String.Join(" && ", class1.Columns.Where(a=>a.IsPrimaryKey).Select(a=>String.Format("a.{0} == _{0}", a.Name))) #>));
 		
 		public <#=  class1.Name #> Find<#= class1.Name #>ById(<#= String.Join(", ", class1.Columns.Where(a=>a.IsPrimaryKey).Select(a=>a.Type + " " + a.Name)) #>) 
 		{
-			return <#=getter #>(this, <#= String.Join(", ", class1.Columns.Where(a=>a.IsPrimaryKey).Select(a=>a.Name)) #>);
+			return <#=getter #>(this, <#= String.Join(", ", class1.Columns.Where(a=>a.IsPrimaryKey).Select(a=>a.Name)) #>).AsEnumerable().FirstOrDefault();
 		}
 
 		public <#= class1.Name #> Get<#= class1.Name #>ById(<#= String.Join(", ", class1.Columns.Where(a=>a.IsPrimaryKey).Select(a=>a.Type + " " + a.Name)) #>) 
 		{
-			var result = <#=getter #>(this, <#= String.Join(", ", class1.Columns.Where(a=>a.IsPrimaryKey).Select(a=>a.Name)) #>);
-			if (result!=null)
-				return result;
-			throw new InvalidOperationException("Entity not found in the database.");
+			return <#=getter #>(this, <#= String.Join(", ", class1.Columns.Where(a=>a.IsPrimaryKey).Select(a=>a.Name)) #>).AsEnumerable().First();			
 		}
 
 <#}
